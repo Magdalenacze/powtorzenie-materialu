@@ -13,20 +13,14 @@ public class MeetingService {
 
     public Meeting createNewMeeting(String meetingName, String meetingDateTimeString,
                                     Set<String> participantEmail, String meetingDuration) {
-        boolean test = false;
         for(String email : participantEmail) {
             for (Meeting meeting : meetingRepository.findAll()) {
-                test = meeting.checkingForConflictingMeetings(meetingDateTimeString, email);
-                if (test == true)
-                    break;
+                 meeting.checkingForConflictingMeetings(meetingDateTimeString, email);
             }
         }
-        if(test == false) {
         Meeting meeting = new Meeting(meetingName,meetingDateTimeString, participantEmail, meetingDuration);
         meetingRepository.save(meeting);
         return meeting;
-        }
-        return null;
     }
 
     public List<Meeting> getAllMeetings() {
