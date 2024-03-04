@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -50,6 +51,15 @@ public class Meeting {
         return Duration.ofHours(hours).plus(Duration.ofMinutes(minutes));
     }
 
+    public boolean checkingForConflictingMeetings(String meetingDateTimeString, String email) {
+        if (participantEmail.contains(email) &&
+                dateAndTime.equals(parseStringToDate(meetingDateTimeString))) {
+            throw new MeetingException("The meeting could not be created for the specified user " +
+                    "at the expected time!");
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Meeting{" +
@@ -79,13 +89,5 @@ public class Meeting {
     @Override
     public int hashCode() {
         return Objects.hash(meetingId, name, dateAndTime, participantEmail, meetingDuration);
-    }
-
-    public LocalDateTime getDateAndTime() {
-        return dateAndTime;
-    }
-
-    public Set<String> getParticipantEmail() {
-        return participantEmail;
     }
 }
