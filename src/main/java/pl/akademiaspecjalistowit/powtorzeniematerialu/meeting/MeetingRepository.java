@@ -8,6 +8,7 @@ public class MeetingRepository {
 
     public MeetingRepository() {
         meetings = new HashMap<>();
+
     }
 
     public void save(Meeting meeting) {
@@ -27,5 +28,18 @@ public class MeetingRepository {
             }
         }
         return meetingsWithParticipants;
+    }
+
+    public <K, V> K getKey(Map<K, V> map, V value) { // auxiliary method
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public void remove(Meeting meeting) {
+        meetings.remove(getKey(meetings, meeting));
     }
 }

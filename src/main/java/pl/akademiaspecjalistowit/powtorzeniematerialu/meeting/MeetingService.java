@@ -24,4 +24,12 @@ public class MeetingService {
     public List<Meeting> getAllMeetings() {
         return meetingRepository.findAll();
     }
+
+    public MeetingRepository getMeetingRepository() {
+        return meetingRepository;
+    }
+
+    public void deleteExistingMeeting(Meeting meeting) {
+        meetingRepository.remove(meeting);
+    }
 }
