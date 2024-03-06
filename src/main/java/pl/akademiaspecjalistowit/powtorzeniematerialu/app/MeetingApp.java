@@ -102,7 +102,8 @@ public class MeetingApp {
     private void deleteMeeting(Scanner scanner) {
         System.out.println("Podaj swój email jako uczestnika, którego spotkanie ma zostać usunięte: ");
         String deleteMeetingForEmail = scanner.nextLine();
-        List<Meeting> meetingForGivenEmail = meetingService.getMeetingRepository().findAllByParticipantEmails(Set.of(deleteMeetingForEmail));
+        List<Meeting> meetingForGivenEmail = meetingService.getMeetingRepository().
+                findAllByParticipantEmails(Set.of(deleteMeetingForEmail));
         for (Meeting meeting : meetingForGivenEmail) {
             System.out.print(meetingForGivenEmail.indexOf(meeting) + 1 + ".");
             System.out.println(" " + meeting);
@@ -117,5 +118,16 @@ public class MeetingApp {
         }
         meetingService.deleteExistingMeeting(meetingForGivenEmail.get(number-1));
         System.out.println("Wskazane spotkanie zostało pomyślnie usunięte!");
+    }
+
+    private void showExistingMeetingsForGivenEmail(Scanner scanner) {
+        System.out.println("Podaj email uczestnika, dla którego chcesz wyświetlić spotkania: ");
+        String showMeetingForEmail = scanner.nextLine();
+        List<Meeting> meetingForGivenEmail = meetingService.getMeetingRepository().
+                findAllByParticipantEmails(Set.of(showMeetingForEmail));
+        for (Meeting meeting : meetingForGivenEmail) {
+            System.out.print(meetingForGivenEmail.indexOf(meeting) + 1 + ".");
+            System.out.println(" " + meeting);
+        }
     }
 }
