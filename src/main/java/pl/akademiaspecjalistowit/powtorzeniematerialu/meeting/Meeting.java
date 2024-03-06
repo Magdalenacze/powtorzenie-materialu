@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public class Meeting {
 
     }
 
-    private LocalDateTime parseStringToDate(String dateString) {
+    private static LocalDateTime parseStringToDate(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm");
         try {
             return LocalDateTime.parse(dateString, formatter);
@@ -48,6 +49,30 @@ public class Meeting {
         long minutes = Long.parseLong(parts[1]);
 
         return Duration.ofHours(hours).plus(Duration.ofMinutes(minutes));
+    }
+
+    public boolean checkingForConflictingMeetings(String meetingDateTimeString, String meetingDuration) {
+        if (checkingForConflictMeetingByTime(parseStringToDate(meetingDateTimeString),
+                parseDurationFromString(meetingDuration))) {
+            throw new MeetingException("Nie można utworzyć spotkania dla podanego użytkownika w oczekiwanym" +
+                    "czasie! Podany termin nakłada się na już istniejące spotkanie!");
+        }
+        return false;
+    }
+
+    public boolean checkingForConflictMeetingByTime(LocalDateTime date, Duration duration) {
+        LocalDateTime thisEndTime = dateAndTime.plus(meetingDuration);
+        LocalDateTime otherEndTime = date.plus(duration);
+        if (dateAndTime.isBefore(otherEndTime) && thisEndTime.isAfter(date) ||
+                date.isBefore(thisEndTime) && otherEndTime.isAfter(dateAndTime)) {
+            return true;
+    } else {
+            return false;
+    }
+}
+
+    public Set<String> getParticipantEmail() {
+        return Set.copyOf(participantEmail);
     }
 
     @Override
