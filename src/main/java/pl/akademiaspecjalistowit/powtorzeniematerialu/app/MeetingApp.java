@@ -110,8 +110,12 @@ public class MeetingApp {
         System.out.println("Podaj numer spotkania do usunięcia: ");
         Integer number = scanner.nextInt();
         scanner.nextLine();
+        while (number > meetingForGivenEmail.size()) {
+            System.out.println("Podana wartość wykracza poza zakres! Podaj jeszcze raz: ");
+            number = scanner.nextInt();
+            scanner.nextLine();
+        }
         meetingService.deleteExistingMeeting(meetingForGivenEmail.get(number-1));
         System.out.println("Wskazane spotkanie zostało pomyślnie usunięte!");
     }
-
 }

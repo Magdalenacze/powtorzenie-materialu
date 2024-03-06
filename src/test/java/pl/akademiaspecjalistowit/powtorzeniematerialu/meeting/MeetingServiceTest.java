@@ -1,11 +1,14 @@
 package pl.akademiaspecjalistowit.powtorzeniematerialu.meeting;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -118,5 +121,47 @@ class MeetingServiceTest {
         assertThrows(MeetingException.class, e);
         List<Meeting> allMeetings = meetingService.getAllMeetings();
         assertThat(allMeetings).hasSize(1);
+    }
+
+    @Test
+    void should_delete_meeting_correctly() {
+        // GIVEN
+        String meetingName = "Existing Meeting";
+        String meetingDateTimeString = "05:03:2024 09:00";
+        Set<String> participantEmails = Set.of("user@example.com");
+        String meetingDuration = "01:00";
+        Meeting existingMeeting = meetingService.createNewMeeting(meetingName,
+                meetingDateTimeString, participantEmails, meetingDuration);
+
+        // WHEN
+        meetingService.deleteExistingMeeting(existingMeeting);
+
+        // THEN
+        List<Meeting> allMeetings = meetingService.getAllMeetings();
+        assertThat(allMeetings).isEmpty();
+    }
+
+    @Test
+    void should_throw_exception_if_no_meetings_are_found() {
+        // GIVEN
+        String meetingName = "Existing Meeting";
+        String meetingDateTimeString = "05:03:2024 09:00";
+        Set<String> participantEmails = Set.of("user@example.com");
+        String meetingDuration = "01:00";
+        meetingService.createNewMeeting(meetingName, meetingDateTimeString,
+                participantEmails, meetingDuration);
+        Meeting newMeeting = new Meeting(
+                "New Meeting",
+                "05:03:2024 11:00",
+                Set.of("user@example.com"),
+                "01:00");
+
+        // WHEN
+        Throwable thrown = catchThrowable(() -> meetingService.deleteExistingMeeting(newMeeting));
+
+        // THEN
+        Assertions.assertThat(thrown)
+                .isInstanceOf(MeetingException.class)
+                .hasMessageContaining("Niestety nie znaleziono żadnego spotkania!");
     }
 }

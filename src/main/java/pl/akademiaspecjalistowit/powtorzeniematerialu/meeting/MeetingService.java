@@ -30,6 +30,9 @@ public class MeetingService {
     }
 
     public void deleteExistingMeeting(Meeting meeting) {
+        if (!getAllMeetings().contains(meeting)) {
+            throw new MeetingException("Niestety nie znaleziono żadnego spotkania!");
+        }
         meetingRepository.remove(meeting);
     }
 }
