@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class MeetingService {
 
-    private MeetingRepository meetingRepository;
+    private final MeetingRepository meetingRepository;
 
     public MeetingService() {
         meetingRepository = new MeetingRepository();
@@ -13,12 +13,10 @@ public class MeetingService {
 
     public Meeting createNewMeeting(String meetingName, String meetingDateTimeString,
                                     Set<String> participantEmail, String meetingDuration) {
-        for(String email : participantEmail) {
-            for (Meeting meeting : meetingRepository.findAll()) {
-                 meeting.checkingForConflictingMeetings(meetingDateTimeString, email);
-            }
+        for (Meeting meeting : meetingRepository.findAllByParticipantEmails(participantEmail)) {
+            meeting.checkingForConflictingMeetings(meetingDateTimeString, meetingDuration);
         }
-        Meeting meeting = new Meeting(meetingName,meetingDateTimeString, participantEmail, meetingDuration);
+        Meeting meeting = new Meeting(meetingName, meetingDateTimeString, participantEmail, meetingDuration);
         meetingRepository.save(meeting);
         return meeting;
     }
@@ -26,6 +24,4 @@ public class MeetingService {
     public List<Meeting> getAllMeetings() {
         return meetingRepository.findAll();
     }
-
-
 }

@@ -31,7 +31,7 @@ public class Meeting {
 
     }
 
-    private LocalDateTime parseStringToDate(String dateString) {
+    private static LocalDateTime parseStringToDate(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm");
         try {
             return LocalDateTime.parse(dateString, formatter);
@@ -51,13 +51,28 @@ public class Meeting {
         return Duration.ofHours(hours).plus(Duration.ofMinutes(minutes));
     }
 
-    public boolean checkingForConflictingMeetings(String meetingDateTimeString, String email) {
-        if (participantEmail.contains(email) &&
-                dateAndTime.equals(parseStringToDate(meetingDateTimeString))) {
-            throw new MeetingException("The meeting could not be created for the specified user " +
-                    "at the expected time!");
+    public boolean checkingForConflictingMeetings(String meetingDateTimeString, String meetingDuration) {
+        if (checkingForConflictMeetingByTime(parseStringToDate(meetingDateTimeString),
+                parseDurationFromString(meetingDuration))) {
+            throw new MeetingException("Nie można utworzyć spotkania dla podanego użytkownika w oczekiwanym" +
+                    "czasie! Podany termin nakłada się na już istniejące spotkanie!");
         }
         return false;
+    }
+
+    public boolean checkingForConflictMeetingByTime(LocalDateTime date, Duration duration) {
+        LocalDateTime thisEndTime = dateAndTime.plus(meetingDuration);
+        LocalDateTime otherEndTime = date.plus(duration);
+        if (dateAndTime.isBefore(otherEndTime) && thisEndTime.isAfter(date) ||
+                date.isBefore(thisEndTime) && otherEndTime.isAfter(dateAndTime)) {
+            return true;
+    } else {
+            return false;
+    }
+}
+
+    public Set<String> getParticipantEmail() {
+        return Set.copyOf(participantEmail);
     }
 
     @Override

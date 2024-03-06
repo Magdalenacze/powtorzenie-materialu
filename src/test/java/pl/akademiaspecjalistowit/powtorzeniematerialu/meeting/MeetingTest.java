@@ -1,39 +1,53 @@
 package pl.akademiaspecjalistowit.powtorzeniematerialu.meeting;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class MeetingTest {
 
-    private Meeting meeting;
+    @Test
+    void should_throw_exception_for_overlapping_meetings() {
+        // GIVEN
+        Meeting meeting = new Meeting(
+                "Existing Meeting",
+                "05:03:2024 09:00",
+                Set.of("user@example.com"),
+                "01:00");
 
-    @BeforeEach
-    void setUp() {
-        meeting = new Meeting(
-                "Test Meeting",
-                "01:01:2024 12:00",
-                Set.of("test1234@example.com"),
-                "02:00");
+        // WHEN
+        Throwable thrown = catchThrowable(() -> meeting.checkingForConflictingMeetings(
+                "05:03:2024 09:30",
+                "01:00"));
+
+        // THEN
+        assertThat(thrown)
+                .isInstanceOf(MeetingException.class)
+                .hasMessageContaining("Nie można utworzyć spotkania dla podanego użytkownika w oczekiwanym" +
+                        "czasie! Podany termin nakłada się na już istniejące spotkanie!");
     }
 
     @Test
-    public void making_overlapping_meetings_for_the_same_participants_is_not_possible() {
-        //given
+    void should_not_throw_exception_for_meetings_that_do_not_overlap() {
+        // GIVEN
+        Meeting meeting = new Meeting(
+                "Existing Meeting",
+                "05:03:2024 09:00",
+                Set.of("user@example.com"),
+                "01:00");
 
-        //when
-        Throwable thrown = catchThrowable(() -> meeting.checkingForConflictingMeetings(
-                "01:01:2024 12:00",
-                "test1234@example.com"));
+        // WHEN
+        Executable action = () ->
+                meeting.checkingForConflictingMeetings(
+                        "05:03:2024 10:00",
+                        "01:00");
 
-        //then
-        assertThat(thrown)
-                .isInstanceOf(MeetingException.class)
-                .hasMessageContaining("The meeting could not be created for the " +
-                        "specified user at the expected time!");
+        // THEN
+        assertDoesNotThrow(action);
     }
 }
