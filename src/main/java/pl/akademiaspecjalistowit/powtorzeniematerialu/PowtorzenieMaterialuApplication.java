@@ -8,5 +8,4 @@ public class PowtorzenieMaterialuApplication {
         MeetingApp meetingApp = new MeetingApp();
         meetingApp.run();
     }
-
 }

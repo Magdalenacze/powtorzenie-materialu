@@ -14,7 +14,7 @@ public class MeetingRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        meetingRepository = new MeetingRepository();
+        meetingRepository = MeetingRepository.getInstance();
     }
 
     @Test

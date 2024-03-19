@@ -5,10 +5,21 @@ import java.util.*;
 public class MeetingRepository {
 
     private Map<Long, Meeting> meetings;
+    private static MeetingRepository instance;
 
-    public MeetingRepository() {
+    private MeetingRepository() {
         meetings = new HashMap<>();
+    }
 
+    public static MeetingRepository getInstance() {
+        if (instance == null) {
+            synchronized (MeetingRepository.class) {
+                if (instance == null) {
+                    instance = new MeetingRepository();
+                }
+            }
+        }
+        return instance;
     }
 
     public void save(Meeting meeting) {

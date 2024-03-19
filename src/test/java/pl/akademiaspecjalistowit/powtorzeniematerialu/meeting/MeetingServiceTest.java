@@ -15,11 +15,11 @@ import org.junit.jupiter.api.function.Executable;
 
 class MeetingServiceTest {
 
-    private MeetingService meetingService;
+    private MeetingServiceImpl meetingService;
 
     @BeforeEach
     void setUp() {
-        meetingService = new MeetingService();
+        meetingService = MeetingServiceImpl.getInstance();
     }
 
     @Test
