@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -28,7 +27,6 @@ public class Meeting {
         this.participantEmail = participantEmail;
         this.name = meetingName;
         this.meetingId = UUID.randomUUID();
-
     }
 
     private static LocalDateTime parseStringToDate(String dateString) {
@@ -54,7 +52,7 @@ public class Meeting {
     public boolean checkingForConflictingMeetings(String meetingDateTimeString, String meetingDuration) {
         if (checkingForConflictMeetingByTime(parseStringToDate(meetingDateTimeString),
                 parseDurationFromString(meetingDuration))) {
-            throw new MeetingException("Nie można utworzyć spotkania dla podanego użytkownika w oczekiwanym" +
+            throw new MeetingException("Nie można utworzyć spotkania dla podanego użytkownika w oczekiwanym " +
                     "czasie! Podany termin nakłada się na już istniejące spotkanie!");
         }
         return false;

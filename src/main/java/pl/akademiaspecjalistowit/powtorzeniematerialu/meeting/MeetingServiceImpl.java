@@ -1,32 +1,35 @@
 package pl.akademiaspecjalistowit.powtorzeniematerialu.meeting;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MeetingServiceImpl implements MeetingService {
 
     private final MeetingRepository meetingRepository;
-    private static MeetingServiceImpl instance;
+    private static MeetingServiceImpl meetingServiceImpl;
+    private Map<Long, Meeting> meetings = new HashMap<>();
 
-    private MeetingServiceImpl() {
-        meetingRepository = MeetingRepository.getInstance();
+    private MeetingServiceImpl(MeetingRepository meetingRepository) {
+        this.meetingRepository = meetingRepository;
     }
 
-    public static MeetingServiceImpl getInstance() {
-        if (instance == null) {
+    public static MeetingServiceImpl getMeetingServiceImpl(MeetingRepository meetingRepository) {
+        if (meetingServiceImpl == null) {
             synchronized (MeetingServiceImpl.class) {
-                if (instance == null) {
-                    instance = new MeetingServiceImpl();
+                if (meetingServiceImpl == null) {
+                    meetingServiceImpl = new MeetingServiceImpl(meetingRepository);
                 }
             }
         }
-        return instance;
+        return meetingServiceImpl;
     }
 
     @Override
     public Meeting createNewMeeting(String meetingName, String meetingDateTimeString,
                                     Set<String> participantEmail, String meetingDuration) {
-        for (Meeting meeting : meetingRepository.findAllByParticipantEmails(participantEmail)) {
+        for (Meeting meeting : MeetingRepository.getMeetingRepository(meetings).findAllByParticipantEmails(participantEmail)) {
             meeting.checkingForConflictingMeetings(meetingDateTimeString, meetingDuration);
         }
         Meeting meeting = new Meeting(meetingName, meetingDateTimeString, participantEmail, meetingDuration);
@@ -36,17 +39,17 @@ public class MeetingServiceImpl implements MeetingService {
 
     @Override
     public List<Meeting> getAllMeetings() {
-        return meetingRepository.findAll();
+        return MeetingRepository.getMeetingRepository(meetings).findAll();
     }
 
     public MeetingRepository getMeetingRepository() {
-        return meetingRepository;
+        return MeetingRepository.getMeetingRepository(meetings);
     }
 
     public void deleteExistingMeeting(Meeting meeting) {
         if (!getAllMeetings().contains(meeting)) {
             throw new MeetingException("Niestety nie znaleziono żadnego spotkania!");
         }
-        meetingRepository.remove(meeting);
+        MeetingRepository.getMeetingRepository(meetings).remove(meeting);
     }
 }

@@ -5,16 +5,18 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.Meeting;
+import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingRepository;
 import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingServiceImpl;
 import pl.akademiaspecjalistowit.powtorzeniematerialu.notification.NotificationServiceImpl;
 
 public class MeetingApp {
 
     private final MeetingWithNotificationService meetingWithNotificationService;
+    MeetingRepository meetingRepository;
 
         public MeetingApp() {
             this.meetingWithNotificationService = new MeetingWithNotificationService
-                (MeetingServiceImpl.getInstance(), new NotificationServiceImpl());
+                (MeetingServiceImpl.getMeetingServiceImpl(meetingRepository), new NotificationServiceImpl());
     }
 
     public void run() {

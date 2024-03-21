@@ -1,6 +1,7 @@
 package pl.akademiaspecjalistowit.powtorzeniematerialu.app;
 
 import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.Meeting;
+import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingRepository;
 import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingService;
 import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingServiceImpl;
 import pl.akademiaspecjalistowit.powtorzeniematerialu.notification.NotificationServiceImpl;
@@ -11,11 +12,12 @@ import java.util.Set;
 public class MeetingWithNotificationService implements MeetingService {
 
     private final MeetingServiceImpl meetingServiceImpl;
+    private MeetingRepository meetingRepository;
     private final NotificationServiceImpl notificationServiceImpl;
 
     public MeetingWithNotificationService(MeetingServiceImpl meetingServiceImpl,
                                           NotificationServiceImpl notificationServiceImpl) {
-        this.meetingServiceImpl = MeetingServiceImpl.getInstance();
+        this.meetingServiceImpl = MeetingServiceImpl.getMeetingServiceImpl(meetingRepository);
         this.notificationServiceImpl = notificationServiceImpl;
     }
 

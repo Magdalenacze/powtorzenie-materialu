@@ -5,21 +5,21 @@ import java.util.*;
 public class MeetingRepository {
 
     private Map<Long, Meeting> meetings;
-    private static MeetingRepository instance;
+    private static MeetingRepository meetingRepository;
 
-    private MeetingRepository() {
-        meetings = new HashMap<>();
+    private MeetingRepository(Map<Long, Meeting> meetings) {
+        this.meetings = new HashMap<>();
     }
 
-    public static MeetingRepository getInstance() {
-        if (instance == null) {
+    public static MeetingRepository getMeetingRepository(Map<Long, Meeting> meetings) {
+        if (meetingRepository == null) {
             synchronized (MeetingRepository.class) {
-                if (instance == null) {
-                    instance = new MeetingRepository();
+                if (meetingRepository == null) {
+                    meetingRepository = new MeetingRepository(meetings);
                 }
             }
         }
-        return instance;
+        return meetingRepository;
     }
 
     public void save(Meeting meeting) {
@@ -53,4 +53,9 @@ public class MeetingRepository {
     public void remove(Meeting meeting) {
         meetings.remove(getKey(meetings, meeting));
     }
+
+    public void removeAll() {
+        meetings.clear();
+    }
+
 }
