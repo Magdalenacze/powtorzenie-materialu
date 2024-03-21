@@ -28,7 +28,7 @@ public class MeetingTest {
         // THEN
         assertThat(thrown)
                 .isInstanceOf(MeetingException.class)
-                .hasMessageContaining("Nie można utworzyć spotkania dla podanego użytkownika w oczekiwanym" +
+                .hasMessageContaining("Nie można utworzyć spotkania dla podanego użytkownika w oczekiwanym " +
                         "czasie! Podany termin nakłada się na już istniejące spotkanie!");
     }
 

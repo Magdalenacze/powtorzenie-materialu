@@ -4,22 +4,29 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 class MeetingServiceTest {
 
-    private MeetingService meetingService;
+    private MeetingServiceImpl meetingServiceImpl;
+    private Map<Long, Meeting> meetings = new HashMap<>();
+    private MeetingRepository meetingRepository;
 
     @BeforeEach
     void setUp() {
-        meetingService = new MeetingService();
+        meetingRepository = MeetingRepository.getMeetingRepository(meetings);
+        meetingServiceImpl = MeetingServiceImpl.getMeetingServiceImpl(meetingRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        meetingServiceImpl.getMeetingRepository().removeAll();
     }
 
     @Test
@@ -33,10 +40,10 @@ class MeetingServiceTest {
 
         // WHEN
         Meeting result =
-            meetingService.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
+            meetingServiceImpl.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
 
         // THEN
-        List<Meeting> allMeetings = meetingService.getAllMeetings();
+        List<Meeting> allMeetings = meetingServiceImpl.getAllMeetings();
         assertThat(allMeetings).contains(result);
     }
 
@@ -48,7 +55,7 @@ class MeetingServiceTest {
         Set<String> participantEmails = Set.of("test123@example.com");
         String meetingDuration = "02:00";
         Meeting existingMeeting =
-            meetingService.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
+                meetingServiceImpl.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
 
         String overlappingMeetingName = "Test Meeting";
         String overlappingMeetingDateTimeString = "01:01:2024 12:10";
@@ -56,14 +63,14 @@ class MeetingServiceTest {
         String OverlappingMeetingDuration = "01:00";
 
         // WHEN
-        Meeting overlappingMeeting = meetingService
+        Meeting overlappingMeeting = meetingServiceImpl
             .createNewMeeting(overlappingMeetingName,
                 overlappingMeetingDateTimeString,
                 overlappingParticipantEmails,
                 OverlappingMeetingDuration);
 
         // THEN
-        List<Meeting> allMeetings = meetingService.getAllMeetings();
+        List<Meeting> allMeetings = meetingServiceImpl.getAllMeetings();
         assertThat(allMeetings).hasSize(2);
     }
 
@@ -75,7 +82,7 @@ class MeetingServiceTest {
         Set<String> participantEmails = Set.of("test123@example.com");
         String meetingDuration = "02:00";
         Meeting existingMeeting =
-            meetingService.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
+                meetingServiceImpl.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
 
         String overlappingMeetingName = "Test Meeting";
         String overlappingMeetingDateTimeString = "01:01:2024 12:10";
@@ -83,7 +90,7 @@ class MeetingServiceTest {
         String OverlappingMeetingDuration = "01:00";
 
         // WHEN
-        Executable e = () -> meetingService
+        Executable e = () -> meetingServiceImpl
             .createNewMeeting(overlappingMeetingName,
                 overlappingMeetingDateTimeString,
                 overlappingParticipantEmails,
@@ -91,7 +98,7 @@ class MeetingServiceTest {
 
         // THEN
         assertThrows(MeetingException.class, e);
-        List<Meeting> allMeetings = meetingService.getAllMeetings();
+        List<Meeting> allMeetings = meetingServiceImpl.getAllMeetings();
         assertThat(allMeetings).hasSize(1);
     }
 
@@ -103,7 +110,7 @@ class MeetingServiceTest {
         Set<String> participantEmails = Set.of("test123@example.com");
         String meetingDuration = "01:00";
         Meeting existingMeeting =
-                meetingService.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
+                meetingServiceImpl.createNewMeeting(meetingName, meetingDateTimeString, participantEmails, meetingDuration);
 
         String overlappingMeetingName = "Test Meeting";
         String overlappingMeetingDateTimeString = "01:01:2024 11:00";
@@ -111,7 +118,7 @@ class MeetingServiceTest {
         String OverlappingMeetingDuration = "02:00";
 
         // WHEN
-        Executable e = () -> meetingService
+        Executable e = () -> meetingServiceImpl
                 .createNewMeeting(overlappingMeetingName,
                         overlappingMeetingDateTimeString,
                         overlappingParticipantEmails,
@@ -119,7 +126,7 @@ class MeetingServiceTest {
 
         // THEN
         assertThrows(MeetingException.class, e);
-        List<Meeting> allMeetings = meetingService.getAllMeetings();
+        List<Meeting> allMeetings = meetingServiceImpl.getAllMeetings();
         assertThat(allMeetings).hasSize(1);
     }
 
@@ -130,14 +137,14 @@ class MeetingServiceTest {
         String meetingDateTimeString = "05:03:2024 09:00";
         Set<String> participantEmails = Set.of("user@example.com");
         String meetingDuration = "01:00";
-        Meeting existingMeeting = meetingService.createNewMeeting(meetingName,
+        Meeting existingMeeting = meetingServiceImpl.createNewMeeting(meetingName,
                 meetingDateTimeString, participantEmails, meetingDuration);
 
         // WHEN
-        meetingService.deleteExistingMeeting(existingMeeting);
+        meetingServiceImpl.deleteExistingMeeting(existingMeeting);
 
         // THEN
-        List<Meeting> allMeetings = meetingService.getAllMeetings();
+        List<Meeting> allMeetings = meetingServiceImpl.getAllMeetings();
         assertThat(allMeetings).isEmpty();
     }
 
@@ -148,7 +155,7 @@ class MeetingServiceTest {
         String meetingDateTimeString = "05:03:2024 09:00";
         Set<String> participantEmails = Set.of("user@example.com");
         String meetingDuration = "01:00";
-        meetingService.createNewMeeting(meetingName, meetingDateTimeString,
+        meetingServiceImpl.createNewMeeting(meetingName, meetingDateTimeString,
                 participantEmails, meetingDuration);
         Meeting newMeeting = new Meeting(
                 "New Meeting",
@@ -157,7 +164,7 @@ class MeetingServiceTest {
                 "01:00");
 
         // WHEN
-        Throwable thrown = catchThrowable(() -> meetingService.deleteExistingMeeting(newMeeting));
+        Throwable thrown = catchThrowable(() -> meetingServiceImpl.deleteExistingMeeting(newMeeting));
 
         // THEN
         Assertions.assertThat(thrown)

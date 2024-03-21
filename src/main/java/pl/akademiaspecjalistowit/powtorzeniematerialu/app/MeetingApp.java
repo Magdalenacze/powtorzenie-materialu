@@ -5,15 +5,18 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.Meeting;
-import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingService;
+import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingRepository;
+import pl.akademiaspecjalistowit.powtorzeniematerialu.meeting.MeetingServiceImpl;
+import pl.akademiaspecjalistowit.powtorzeniematerialu.notification.NotificationServiceImpl;
 
 public class MeetingApp {
 
-    private MeetingService meetingService;
+    private final MeetingWithNotificationService meetingWithNotificationService;
+    MeetingRepository meetingRepository;
 
-
-    public MeetingApp() {
-        this.meetingService = new MeetingService();
+        public MeetingApp() {
+            this.meetingWithNotificationService = new MeetingWithNotificationService
+                (MeetingServiceImpl.getMeetingServiceImpl(meetingRepository), new NotificationServiceImpl());
     }
 
     public void run() {
@@ -27,7 +30,6 @@ public class MeetingApp {
             System.out.println("Wystąpił problem, przepraszamy: " + e);
             run();
         }
-
     }
 
     private boolean printMenu(Scanner scanner) {
@@ -60,7 +62,7 @@ public class MeetingApp {
     }
 
     private void showMeetings() {
-        List<Meeting> allMeetings = meetingService.getAllMeetings();
+        List<Meeting> allMeetings = meetingWithNotificationService.getAllMeetings();
         if (allMeetings.isEmpty()) {
             System.out.println("Brak spotkań");
             return;
@@ -94,7 +96,7 @@ public class MeetingApp {
         }
 
         Meeting newMeeting =
-            meetingService.createNewMeeting(meetingName, meetingDateTimeString, participantEmail, meetingDuration);
+                meetingWithNotificationService.createNewMeeting(meetingName, meetingDateTimeString, participantEmail, meetingDuration);
 
         System.out.println("Spotkanie " + newMeeting + " zostało utworzone.");
     }
@@ -102,8 +104,8 @@ public class MeetingApp {
     private void deleteMeeting(Scanner scanner) {
         System.out.println("Podaj swój email jako uczestnika, którego spotkanie ma zostać usunięte: ");
         String deleteMeetingForEmail = scanner.nextLine();
-        List<Meeting> meetingForGivenEmail = meetingService.getMeetingRepository().
-                findAllByParticipantEmails(Set.of(deleteMeetingForEmail));
+        List<Meeting> meetingForGivenEmail = meetingWithNotificationService.getMeetingServiceImpl()
+                .getMeetingRepository().findAllByParticipantEmails(Set.of(deleteMeetingForEmail));
         for (Meeting meeting : meetingForGivenEmail) {
             System.out.print(meetingForGivenEmail.indexOf(meeting) + 1 + ".");
             System.out.println(" " + meeting);
@@ -116,15 +118,16 @@ public class MeetingApp {
             number = scanner.nextInt();
             scanner.nextLine();
         }
-        meetingService.deleteExistingMeeting(meetingForGivenEmail.get(number-1));
+        meetingWithNotificationService.getMeetingServiceImpl()
+                .deleteExistingMeeting(meetingForGivenEmail.get(number - 1));
         System.out.println("Wskazane spotkanie zostało pomyślnie usunięte!");
     }
 
     private void showExistingMeetingsForGivenEmail(Scanner scanner) {
         System.out.println("Podaj email uczestnika, dla którego chcesz wyświetlić spotkania: ");
         String showMeetingForEmail = scanner.nextLine();
-        List<Meeting> meetingForGivenEmail = meetingService.getMeetingRepository().
-                findAllByParticipantEmails(Set.of(showMeetingForEmail));
+        List<Meeting> meetingForGivenEmail = meetingWithNotificationService.getMeetingServiceImpl()
+                .getMeetingRepository().findAllByParticipantEmails(Set.of(showMeetingForEmail));
         for (Meeting meeting : meetingForGivenEmail) {
             System.out.print(meetingForGivenEmail.indexOf(meeting) + 1 + ".");
             System.out.println(" " + meeting);

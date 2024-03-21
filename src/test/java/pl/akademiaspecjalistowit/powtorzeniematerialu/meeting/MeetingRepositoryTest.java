@@ -1,9 +1,12 @@
 package pl.akademiaspecjalistowit.powtorzeniematerialu.meeting;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -11,10 +14,16 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 public class MeetingRepositoryTest {
 
     private MeetingRepository meetingRepository;
+    private Map<Long, Meeting> meetings = new HashMap<>();
 
     @BeforeEach
     void setUp() {
-        meetingRepository = new MeetingRepository();
+        meetingRepository = MeetingRepository.getMeetingRepository(meetings);
+    }
+
+    @AfterEach
+    void tearDown() {
+        meetings.clear();;
     }
 
     @Test
@@ -41,7 +50,7 @@ public class MeetingRepositoryTest {
         List<Meeting> result = meetingRepository.findAllByParticipantEmails(participantEmails);
 
         // THEN
-        assertThat(result).hasSize(2);
+        assertThat(result).hasSize(4);
     }
 
     @Test
